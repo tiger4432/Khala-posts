@@ -44,11 +44,20 @@ class Post(BaseModel):
     content: str
     group: str
     created_at: str
+    urgent: bool = False
+    completed: bool = False
 
 class PostCreate(BaseModel):
     title: str
     content: str
     group: str
+    urgent: bool = False
+    completed: bool = False
+
+# 게시글 업데이트 모델
+class PostUpdate(BaseModel):
+    urgent: Optional[bool] = None
+    completed: Optional[bool] = None
 
 # CSV 파일 경로
 CSV_FILE = "posts.csv"
@@ -57,7 +66,7 @@ CSV_FILE = "posts.csv"
 if not os.path.exists(CSV_FILE):
     with open(CSV_FILE, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow(["id", "title", "content", "group", "created_at"])
+        writer.writerow(["id", "title", "content", "group", "created_at", "urgent", "completed"])
 
 def read_posts(group: Optional[str] = None) -> List[Post]:
     posts = []
@@ -70,10 +79,12 @@ def read_posts(group: Optional[str] = None) -> List[Post]:
                     title=row["title"],
                     content=row["content"],
                     group=row["group"],
-                    created_at=row["created_at"]
+                    created_at=row["created_at"],
+                    urgent=row.get("urgent", "False").lower() == "true",
+                    completed=row.get("completed", "False").lower() == "true"
                 ))
-    # Sort posts by creation time in descending order
-    posts.sort(key=lambda x: x.created_at, reverse=True)
+    # Sort posts by urgency first, then by creation time in descending order
+    posts.sort(key=lambda x: (not x.urgent, x.created_at), reverse=True)
     return posts
 
 def write_post(post: Post) -> None:
@@ -84,7 +95,9 @@ def write_post(post: Post) -> None:
             post.title,
             post.content,
             post.group,
-            post.created_at
+            post.created_at,
+            post.urgent,
+            post.completed
         ])
 
 def delete_post(post_id: int) -> None:
@@ -93,14 +106,16 @@ def delete_post(post_id: int) -> None:
     
     with open(CSV_FILE, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow(["id", "title", "content", "group", "created_at"])
+        writer.writerow(["id", "title", "content", "group", "created_at", "urgent", "completed"])
         for post in posts:
             writer.writerow([
                 post.id,
                 post.title,
                 post.content,
                 post.group,
-                post.created_at
+                post.created_at,
+                post.urgent,
+                post.completed
             ])
 
 def get_next_id() -> int:
@@ -119,8 +134,7 @@ async def get_groups():
 
 @app.get("/posts")
 async def get_posts(group: Optional[str] = None):
-    posts = read_posts(group)
-    return {"posts": [post.model_dump() for post in posts]}
+    return read_posts(group)
 
 @app.post("/posts")
 async def create_post(post: PostCreate):
@@ -129,7 +143,9 @@ async def create_post(post: PostCreate):
         title=post.title,
         content=post.content,
         group=post.group,
-        created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        urgent=post.urgent,
+        completed=post.completed
     )
     write_post(new_post)
     await manager.broadcast({
@@ -146,6 +162,29 @@ async def delete_post_endpoint(post_id: int):
         "post_id": post_id
     })
     return {"message": "Post deleted"}
+
+@app.put("/posts/{post_id}")
+async def update_post(post_id: int, post_update: PostUpdate):
+    posts = read_posts()
+    post_to_update = next((p for p in posts if p.id == post_id), None)
+    if not post_to_update:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    # Update only the provided fields
+    if post_update.urgent is not None:
+        post_to_update.urgent = post_update.urgent
+    if post_update.completed is not None:
+        post_to_update.completed = post_update.completed
+    
+    # Delete the old post and write the updated one
+    delete_post(post_id)
+    write_post(post_to_update)
+    
+    await manager.broadcast({
+        "type": "update_post",
+        "post": post_to_update.model_dump()
+    })
+    return post_to_update
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):

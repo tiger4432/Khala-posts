@@ -143,6 +143,10 @@
         box-sizing: border-box;
       }
 
+      .post.urgent {
+        background: rgba(255, 200, 200, 1);
+      }
+
       .post-title {
         font-weight: bold;
         margin-bottom: 6px;
@@ -169,22 +173,28 @@
         margin-bottom: 6px;
       }
 
+      .post-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+      }
+
       .post-time {
         font-size: 11px;
         color: #999;
-        margin-bottom: 6px;
       }
 
       .delete-button {
-        position: absolute;
-        top: 10px;
-        right: 10px;
         background: #ff4444;
         color: white;
         border: none;
         border-radius: 4px;
         padding: 4px 8px;
         cursor: pointer;
+        font-size: 12px;
       }
 
       .delete-button:hover {
@@ -326,6 +336,68 @@
         color: #4caf50;
       }
 
+      .post-form-container {
+        background: rgba(255, 255, 255, 1);
+        border-radius: 8px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .post-form-header {
+        padding: 12px;
+        background: rgba(255, 255, 255, 1);
+        border-bottom: 1px solid rgba(255, 255, 255, 1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .post-form-header-left {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        flex: 1;
+      }
+
+      .post-form-header-left h2 {
+        margin: 0;
+        margin-bottom: 5px;
+        font-size: 16px;
+        color: #333;
+      }
+
+      .post-form-header-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .post-form-toggle {
+        background: none;
+        border: none;
+        color: #666;
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.2s;
+        font-family: "Material Icons";
+        font-size: 20px;
+      }
+
+      .post-form-toggle:hover {
+        color: #333;
+      }
+
+      .post-form-content {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
       .post-form {
         background: rgba(255, 255, 255, 1);
         padding: 15px;
@@ -345,6 +417,23 @@
         box-sizing: border-box;
       }
 
+      .post-form .checkbox-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        gap: 10px;
+      }
+
+      .post-form .checkbox-container input[type="checkbox"] {
+        width: auto;
+        margin: 0;
+      }
+
+      .post-form .checkbox-container label {
+        font-size: 13px;
+        color: #666;
+      }
+
       .post-form button {
         width: 100%;
         padding: 8px;
@@ -353,6 +442,21 @@
         border: none;
         border-radius: 4px;
         cursor: pointer;
+      }
+
+      .post-urgent {
+        display: inline-block;
+        padding: 2px 6px;
+        background: #ff4444;
+        color: white;
+        border-radius: 10px;
+        font-size: 11px;
+        margin-bottom: 6px;
+      }
+
+      .post-completed {
+        text-decoration: line-through;
+        opacity: 0.7;
       }
 
       .opacity-control {
@@ -380,6 +484,221 @@
       .position-toggle svg {
         width: 16px;
         height: 16px;
+      }
+
+      .edit-button {
+        position: absolute;
+        top: 10px;
+        right: 50px;
+        background: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 4px 8px;
+        cursor: pointer;
+      }
+
+      .edit-button:hover {
+        background: #388e3c;
+      }
+
+      .checkbox-label {
+        display: inline-flex;
+        align-items: center;
+        margin-right: 20px;
+        cursor: pointer;
+      }
+
+      .checkbox-label input[type="checkbox"] {
+        margin-right: 5px;
+        width: 16px;
+        height: 16px;
+      }
+
+      .modal-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      .modal-buttons button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .modal-buttons button:first-child {
+        background-color: #4caf50;
+        color: white;
+      }
+
+      .modal-buttons button:last-child {
+        background-color: #f44336;
+        color: white;
+      }
+
+      .post-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+
+      .post-status {
+        display: flex;
+        gap: 10px;
+        margin-right: auto;
+      }
+
+      .post-status .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        color: #666;
+      }
+
+      .post-status input[type="checkbox"] {
+        width: 14px;
+        height: 14px;
+        margin: 0;
+      }
+
+      .post-completed {
+        opacity: 0.7;
+        text-decoration: line-through;
+      }
+
+      .post.urgent {
+        background-color: #fff3f3;
+        border-left: 4px solid #ff4444;
+      }
+
+      .filter-container {
+        background: rgba(255, 255, 255, 1);
+        border-radius: 8px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .filter-header {
+        padding: 12px;
+        background: rgba(255, 255, 255, 1);
+        border-bottom: 1px solid rgba(255, 255, 255, 1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .filter-header-left {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        flex: 1;
+      }
+
+      .filter-header-left h2 {
+        margin: 0;
+        margin-bottom: 5px;
+        font-size: 16px;
+        color: #333;
+      }
+
+      .filter-header-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .filter-toggle {
+        background: none;
+        border: none;
+        color: #666;
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.2s;
+        font-family: "Material Icons";
+        font-size: 20px;
+      }
+
+      .filter-toggle:hover {
+        color: #333;
+      }
+
+      .filter-content {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .filter-buttons {
+        display: flex;
+        gap: 8px;
+      }
+
+      .filter-button {
+        flex: 1;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: white;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.2s;
+      }
+
+      .filter-button.active {
+        background-color: #4caf50;
+        color: white;
+        border-color: #4caf50;
+      }
+
+      .filter-button:hover {
+        background-color: #f0f0f0;
+      }
+
+      .filter-button.active:hover {
+        background-color: #45a049;
+      }
+
+      .group-container select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 1);
+        box-sizing: border-box;
+      }
+
+      .filter-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .search-container {
+        flex: 2;
+      }
+
+      .group-container {
+        flex: 1;
+      }
+
+      .search-container input,
+      .group-container select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 1);
+        box-sizing: border-box;
       }
     </style>
   </head>
@@ -414,29 +733,69 @@
           <button class="close-button" onclick="window.close()">close</button>
         </div>
       </div>
-      <div class="search-container">
-        <input
-          type="text"
-          id="search-input"
-          class="search-box"
-          placeholder="검색..."
-          oninput="searchPosts()"
-        />
-        <select
-          id="group-filter"
-          class="group-selector"
-          onchange="filterPosts()"
-        >
-          <option value="">모든 게시글</option>
-        </select>
+
+      <div class="filter-container">
+        <div class="filter-header">
+          <div class="filter-header-left">
+            <h2>필터</h2>
+          </div>
+          <div class="filter-header-right">
+            <button class="filter-toggle" onclick="toggleFilter()">
+              remove
+            </button>
+          </div>
+        </div>
+        <div class="filter-content" id="filter-content">
+          <div class="filter-row">
+            <div class="search-container">
+              <input
+                type="text"
+                id="search-input"
+                placeholder="검색..."
+                oninput="searchPosts()"
+              />
+            </div>
+            <div class="group-container">
+              <select id="group-select" onchange="filterPosts()">
+                <option value="">전체 그룹</option>
+              </select>
+            </div>
+          </div>
+          <div class="filter-buttons">
+            <button id="showAllButton" class="filter-button active">
+              전체
+            </button>
+            <button id="showCompletedButton" class="filter-button">완료</button>
+            <button id="showIncompleteButton" class="filter-button">
+              미완료
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="post-form">
-        <input type="text" id="new-title" placeholder="제목" />
-        <textarea id="new-content" placeholder="내용"></textarea>
-        <select id="new-group">
-          <option value="">공통</option>
-        </select>
-        <button onclick="createPost()">게시</button>
+
+      <div class="post-form-container">
+        <div class="post-form-header">
+          <div class="post-form-header-left">
+            <h2>게시글 작성</h2>
+          </div>
+          <div class="post-form-header-right">
+            <button class="post-form-toggle" onclick="togglePostForm()">
+              remove
+            </button>
+          </div>
+        </div>
+        <div class="post-form" id="post-form-content">
+          <input type="text" id="new-title" placeholder="제목" />
+          <textarea id="new-content" placeholder="내용"></textarea>
+          <select id="new-group">
+            <option value="">공통</option>
+          </select>
+          <div class="checkbox-container">
+            <input type="checkbox" id="new-urgent" />
+            <label for="new-urgent">긴급</label>
+          </div>
+          <button onclick="createPost()">게시</button>
+        </div>
       </div>
       <div id="board-content">
         <!-- 게시판 내용이 여기에 표시됩니다 -->
@@ -466,6 +825,66 @@
         <button class="cancel" onclick="cancelDelete()">취소</button>
       </div>
     </div>
+    <div class="modal" id="edit-post-modal">
+      <div class="modal-content">
+        <h3>게시글 수정</h3>
+        <input type="text" id="edit-title" placeholder="제목" />
+        <textarea id="edit-content" placeholder="내용"></textarea>
+        <select id="edit-group">
+          <option value="">공통</option>
+        </select>
+        <div class="checkbox-container">
+          <input type="checkbox" id="edit-urgent" />
+          <label for="edit-urgent">긴급</label>
+        </div>
+        <div class="checkbox-container">
+          <input type="checkbox" id="edit-completed" />
+          <label for="edit-completed">완료</label>
+        </div>
+        <button onclick="updatePost()">수정</button>
+        <button
+          onclick="hideEditPostModal()"
+          style="margin-top: 10px; background: #666"
+        >
+          취소
+        </button>
+      </div>
+    </div>
+    <div id="postModal" class="modal">
+      <div class="modal-content">
+        <h2>게시글 상세</h2>
+        <div class="form-group">
+          <label for="modalTitle">제목</label>
+          <input type="text" id="modalTitle" readonly />
+        </div>
+        <div class="form-group">
+          <label for="modalContent">내용</label>
+          <textarea id="modalContent" readonly></textarea>
+        </div>
+        <div class="form-group">
+          <label for="modalGroup">그룹</label>
+          <input type="text" id="modalGroup" readonly />
+        </div>
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="modalUrgent" />
+            긴급
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="modalCompleted" />
+            완료
+          </label>
+        </div>
+        <div class="modal-buttons">
+          <button id="updateButton">업데이트</button>
+          <button
+            onclick="document.getElementById('postModal').style.display='none'"
+          >
+            닫기
+          </button>
+        </div>
+      </div>
+    </div>
     <script>
       const { ipcRenderer } = require("electron");
       let socket = null;
@@ -473,8 +892,10 @@
       let currentGroup = "";
       let currentPosts = [];
       let deletePostId = null;
+      let editPostId = null;
       let currentPosition = "left";
       let isVerticalExpanded = true;
+      let currentFilter = "all"; // 'all', 'completed', 'incomplete'
 
       function connectWebSocket() {
         socket = new WebSocket("ws://localhost:8000/ws");
@@ -485,6 +906,7 @@
           isConnected = true;
           statusIndicator.classList.add("connected");
           loadGroups();
+          loadInitialPosts();
         };
 
         socket.onclose = () => {
@@ -496,7 +918,19 @@
 
         socket.onmessage = (event) => {
           const data = JSON.parse(event.data);
-          handleWebSocketMessage(data);
+          if (data.type === "new_post") {
+            currentPosts.unshift(data.post);
+            updateDisplayedPosts();
+          } else if (data.type === "delete_post") {
+            currentPosts = currentPosts.filter((p) => p.id !== data.post_id);
+            updateDisplayedPosts();
+          } else if (data.type === "update_post") {
+            const index = currentPosts.findIndex((p) => p.id === data.post.id);
+            if (index !== -1) {
+              currentPosts[index] = data.post;
+              updateDisplayedPosts();
+            }
+          }
         };
 
         socket.onerror = (error) => {
@@ -511,7 +945,7 @@
           const data = await response.json();
           const groups = data.groups;
 
-          const groupFilter = document.getElementById("group-filter");
+          const groupFilter = document.getElementById("group-select");
           const newGroup = document.getElementById("new-group");
 
           // 기존 옵션 유지 (모든 게시글/공통)
@@ -536,7 +970,7 @@
       }
 
       function filterPosts() {
-        const groupFilter = document.getElementById("group-filter");
+        const groupFilter = document.getElementById("group-select");
         currentGroup = groupFilter.value;
         updateDisplayedPosts();
       }
@@ -556,21 +990,58 @@
             !searchTerm ||
             post.title.toLowerCase().includes(searchTerm) ||
             post.content.toLowerCase().includes(searchTerm);
-          return matchesGroup && matchesSearch;
+          const matchesFilter =
+            currentFilter === "all" ||
+            (currentFilter === "completed" && post.completed) ||
+            (currentFilter === "incomplete" && !post.completed);
+          return matchesGroup && matchesSearch && matchesFilter;
+        });
+
+        // 긴급 게시물을 우선적으로 정렬
+        filteredPosts.sort((a, b) => {
+          if (a.urgent && !b.urgent) return -1;
+          if (!a.urgent && b.urgent) return 1;
+          return 0;
         });
 
         const boardContent = document.getElementById("board-content");
         boardContent.innerHTML = filteredPosts
           .map(
             (post) => `
-          <div class="post">
-            ${post.group ? `<div class="post-group">${post.group}</div>` : ""}
-            <div class="post-time">${post.created_at}</div>
+          <div class="post ${post.urgent ? "urgent" : ""} ${
+              post.completed ? "post-completed" : ""
+            }">
+            <div class="post-header">
+              <div class="post-status">
+                <label class="checkbox-label">
+                  <input type="checkbox" class="urgent-checkbox" ${
+                    post.urgent ? "checked" : ""
+                  } 
+                    onchange="updatePostStatus(${
+                      post.id
+                    }, 'urgent', this.checked)">
+                  긴급
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" class="completed-checkbox" ${
+                    post.completed ? "checked" : ""
+                  }
+                    onchange="updatePostStatus(${
+                      post.id
+                    }, 'completed', this.checked)">
+                  완료
+                </label>
+              </div>
+              ${post.group ? `<div class="post-group">${post.group}</div>` : ""}
+            </div>
             <div class="post-title">${post.title}</div>
             <div class="post-content">${post.content}</div>
-            <button class="delete-button" onclick="deletePost(${
-              post.id
-            })">X</button>
+            <div class="post-footer">
+              <div class="post-time">${post.created_at}</div>
+              <button class="delete-button" onclick="deletePost(${
+                post.id
+              })">X</button>
+            </div>
           </div>
         `
           )
@@ -614,13 +1085,16 @@
         const titleInput = document.getElementById("new-title");
         const contentInput = document.getElementById("new-content");
         const groupInput = document.getElementById("new-group");
+        const urgentInput = document.getElementById("new-urgent");
 
         const title = titleInput.value.trim();
         const content = contentInput.value.trim();
         const group = groupInput.value.trim();
+        const urgent = urgentInput.checked;
+        const completed = false;
 
-        if (!title || !content) {
-          alert("제목과 내용을 모두 입력해주세요.");
+        if (!title) {
+          alert("제목을 입력해주세요.");
           return;
         }
 
@@ -629,12 +1103,19 @@
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ title, content, group: group || "" }),
+          body: JSON.stringify({
+            title,
+            content,
+            group: group || "",
+            urgent,
+            completed,
+          }),
         })
           .then((response) => {
             if (response.ok) {
               titleInput.value = "";
               contentInput.value = "";
+              urgentInput.checked = false;
             } else {
               return response.json().then((data) => {
                 throw new Error(data.detail || "알 수 없는 오류");
@@ -739,6 +1220,247 @@
           content.style.height = "auto";
         }
       }
+
+      function showEditPostModal(post) {
+        document.getElementById("edit-title").value = post.title;
+        document.getElementById("edit-content").value = post.content;
+        document.getElementById("edit-group").value = post.group || "";
+        document.getElementById("edit-urgent").checked = post.urgent || false;
+        document.getElementById("edit-completed").checked =
+          post.completed || false;
+        editPostId = post.id;
+        document.getElementById("edit-post-modal").style.display = "block";
+      }
+
+      function hideEditPostModal() {
+        document.getElementById("edit-post-modal").style.display = "none";
+        editPostId = null;
+      }
+
+      async function updatePost() {
+        if (!editPostId) return;
+
+        const title = document.getElementById("edit-title").value.trim();
+        const content = document.getElementById("edit-content").value.trim();
+        const group = document.getElementById("edit-group").value.trim();
+        const urgent = document.getElementById("edit-urgent").checked;
+        const completed = document.getElementById("edit-completed").checked;
+
+        if (!title || !content) {
+          alert("제목과 내용을 모두 입력해주세요.");
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            `http://localhost:8000/posts/${editPostId}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                title,
+                content,
+                group: group || "",
+                urgent,
+                completed,
+              }),
+            }
+          );
+
+          if (response.ok) {
+            hideEditPostModal();
+            // WebSocket을 통해 서버에서 업데이트된 게시물을 받을 것이므로 여기서는 UI만 업데이트
+          } else {
+            const errorData = await response.json();
+            alert(
+              `게시글 수정에 실패했습니다: ${
+                errorData.detail || "알 수 없는 오류"
+              }`
+            );
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert("게시글 수정에 실패했습니다. 서버 연결을 확인해주세요.");
+        }
+      }
+
+      function showPostModal(post) {
+        const modal = document.getElementById("postModal");
+        const modalTitle = document.getElementById("modalTitle");
+        const modalContent = document.getElementById("modalContent");
+        const modalGroup = document.getElementById("modalGroup");
+        const modalUrgent = document.getElementById("modalUrgent");
+        const modalCompleted = document.getElementById("modalCompleted");
+
+        modalTitle.value = post.title;
+        modalContent.value = post.content;
+        modalGroup.value = post.group;
+        modalUrgent.checked = post.urgent;
+        modalCompleted.checked = post.completed;
+
+        // Update 버튼 클릭 이벤트
+        const updateButton = document.getElementById("updateButton");
+        updateButton.onclick = async () => {
+          try {
+            const response = await fetch(`/posts/${post.id}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                urgent: modalUrgent.checked,
+                completed: modalCompleted.checked,
+              }),
+            });
+
+            if (!response.ok) {
+              throw new Error("Failed to update post");
+            }
+
+            // 모달 닫기
+            modal.style.display = "none";
+
+            // 게시글 목록 새로고침
+            loadPosts();
+          } catch (error) {
+            console.error("Error updating post:", error);
+            alert("게시글 업데이트에 실패했습니다.");
+          }
+        };
+
+        modal.style.display = "block";
+      }
+
+      async function updatePostStatus(postId, field, value) {
+        try {
+          const response = await fetch(
+            `http://localhost:8000/posts/${postId}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                [field]: value,
+              }),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Failed to update post status");
+          }
+
+          // 서버에서 응답을 받으면 게시물 목록 새로고침
+          const updatedPost = await response.json();
+          const index = currentPosts.findIndex((p) => p.id === postId);
+          if (index !== -1) {
+            currentPosts[index] = updatedPost;
+            updateDisplayedPosts();
+          }
+        } catch (error) {
+          console.error("Error updating post status:", error);
+          alert("게시글 상태 업데이트에 실패했습니다.");
+        }
+      }
+
+      // 초기 게시물 목록 로드 함수 추가
+      async function loadInitialPosts() {
+        try {
+          const response = await fetch("http://localhost:8000/posts");
+          if (!response.ok) {
+            throw new Error("Failed to load initial posts");
+          }
+          const posts = await response.json();
+          currentPosts = posts;
+          updateDisplayedPosts();
+        } catch (error) {
+          console.error("Error loading initial posts:", error);
+          alert("게시물 목록을 불러오는데 실패했습니다.");
+        }
+      }
+
+      // 필터 버튼 이벤트 핸들러 추가
+      document.getElementById("showAllButton").addEventListener("click", () => {
+        currentFilter = "all";
+        updateFilterButtons();
+        updateDisplayedPosts();
+      });
+
+      document
+        .getElementById("showCompletedButton")
+        .addEventListener("click", () => {
+          currentFilter = "completed";
+          updateFilterButtons();
+          updateDisplayedPosts();
+        });
+
+      document
+        .getElementById("showIncompleteButton")
+        .addEventListener("click", () => {
+          currentFilter = "incomplete";
+          updateFilterButtons();
+          updateDisplayedPosts();
+        });
+
+      function updateFilterButtons() {
+        const buttons = document.querySelectorAll(".filter-button");
+        buttons.forEach((button) => {
+          button.classList.remove("active");
+        });
+
+        const activeButton = document.getElementById(
+          currentFilter === "all"
+            ? "showAllButton"
+            : currentFilter === "completed"
+            ? "showCompletedButton"
+            : "showIncompleteButton"
+        );
+        activeButton.classList.add("active");
+      }
+
+      function toggleFilter() {
+        const filterContent = document.getElementById("filter-content");
+        const filterToggle = document.querySelector(".filter-toggle");
+
+        if (filterContent.style.display === "none") {
+          filterContent.style.display = "flex";
+          filterToggle.textContent = "remove";
+        } else {
+          filterContent.style.display = "none";
+          filterToggle.textContent = "add";
+        }
+      }
+
+      // 초기 필터 상태 설정
+      document.addEventListener("DOMContentLoaded", function () {
+        const filterContent = document.getElementById("filter-content");
+        filterContent.style.display = "flex";
+        const filterToggle = document.querySelector(".filter-toggle");
+        filterToggle.textContent = "remove";
+      });
+
+      function togglePostForm() {
+        const postFormContent = document.getElementById("post-form-content");
+        const postFormToggle = document.querySelector(".post-form-toggle");
+
+        if (postFormContent.style.display === "none") {
+          postFormContent.style.display = "block";
+          postFormToggle.textContent = "remove";
+        } else {
+          postFormContent.style.display = "none";
+          postFormToggle.textContent = "add";
+        }
+      }
+
+      // 초기 게시 폼 상태 설정
+      document.addEventListener("DOMContentLoaded", function () {
+        const postFormContent = document.getElementById("post-form-content");
+        postFormContent.style.display = "block";
+        const postFormToggle = document.querySelector(".post-form-toggle");
+        postFormToggle.textContent = "remove";
+      });
 
       // WebSocket 연결 시작
       connectWebSocket();
