@@ -1,0 +1,306 @@
+/* 상수 정의 */
+:root {
+  --primary-color: #4caf50;
+  --danger-color: #ff4444;
+  --danger-hover-color: #cc0000;
+  --text-color: #333;
+  --text-secondary-color: #666;
+  --text-tertiary-color: #999;
+  --background-color: rgba(119, 119, 119, 0.1);
+  --content-background: rgba(121, 121, 121, 0.5);
+  --header-background: rgba(255, 255, 255, 1);
+  --post-background: rgba(255, 255, 255, 1);
+  --urgent-post-background: rgba(255, 200, 200, 1);
+  --border-color: rgba(0, 0, 0, 0.1);
+  --scrollbar-track: rgba(0, 0, 0, 0.1);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.2);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);
+  --modal-background: rgba(0, 0, 0, 0.5);
+}
+
+/* 기본 스타일 */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background: var(--background-color);
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.content {
+  padding: 20px;
+  height: 100vh;
+  box-sizing: border-box;
+  background: var(--content-background);
+  border-right: 1px solid var(--border-color);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+}
+
+/* 헤더 스타일 */
+.header {
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  background: var(--header-background);
+  border-bottom: 1px solid var(--header-background);
+  position: relative;
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.header-left h1 {
+  margin: 0;
+  margin-bottom: 5px;
+  font-size: 20px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header h3 {
+  margin: 0;
+  margin-right: 15px;
+}
+
+/* 버튼 스타일 */
+.close-button,
+.position-toggle,
+.vertical-toggle {
+  background: none;
+  border: none;
+  color: var(--text-secondary-color);
+  cursor: pointer;
+  padding: 4px;
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+  font-family: "Material Icons";
+  font-size: 20px;
+}
+
+.close-button:hover,
+.position-toggle:hover,
+.vertical-toggle:hover {
+  color: var(--text-color);
+}
+
+/* 입력 필드 스타일 */
+.search-box,
+.group-selector {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--header-background);
+  margin: 0 0 10px 0;
+  box-sizing: border-box;
+}
+
+.group-selector {
+  margin-bottom: 15px;
+}
+
+/* 게시판 콘텐츠 스타일 */
+#board-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 5px;
+  box-sizing: border-box;
+}
+
+#board-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+#board-content::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 3px;
+}
+
+#board-content::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 3px;
+}
+
+#board-content::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* 게시글 스타일 */
+.post {
+  background: var(--post-background);
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px var(--border-color);
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.post.urgent {
+  background: var(--urgent-post-background);
+}
+
+.post-title {
+  font-weight: bold;
+  margin-bottom: 6px;
+  color: var(--text-color);
+  font-size: 14px;
+}
+
+.post-content {
+  color: var(--text-secondary-color);
+  margin-bottom: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.post-group {
+  display: inline-block;
+  padding: 2px 6px;
+  background: #e0e0e0;
+  border-radius: 10px;
+  font-size: 11px;
+  color: var(--text-secondary-color);
+  margin-bottom: 6px;
+}
+
+.post-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color);
+}
+
+.post-time {
+  font-size: 11px;
+  color: var(--text-tertiary-color);
+}
+
+.delete-button {
+  background: var(--danger-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.delete-button:hover {
+  background: var(--danger-hover-color);
+}
+
+/* 플로팅 액션 버튼 */
+.fab {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px var(--border-color);
+  z-index: 1000;
+}
+
+/* 모달 스타일 */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--modal-background);
+  z-index: 1001;
+}
+
+.modal-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--header-background);
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 500px;
+}
+
+.modal-content h3 {
+  margin: 0 0 15px 0;
+  text-align: center;
+}
+
+.modal-content input,
+.modal-content textarea,
+.modal-content select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.modal-content textarea {
+  height: 100px;
+  resize: vertical;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.modal-buttons button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.modal-buttons .cancel-button {
+  background: var(--text-secondary-color);
+  color: white;
+}
+
+.modal-buttons .save-button {
+  background: var(--primary-color);
+  color: white;
+}
+
+.modal-buttons button:hover {
+  opacity: 0.9;
+}

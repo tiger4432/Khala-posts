@@ -1,44 +1,88 @@
 const { app, BrowserWindow, screen, ipcMain } = require("electron");
 
-let win;
-let isVerticalExpanded = true;
-let savedHeight = null;
+// 상수 정의
+const WINDOW_CONFIG = {
+  SIDEBAR_WIDTH: 400,
+  COMPRESSED_HEIGHT: 100,
+  OPACITY: 1,
+};
 
-function createWindow(position = "left") {
-  const primaryDisplay = screen.getPrimaryDisplay();
-  const { width, height } = primaryDisplay.workAreaSize;
+class WindowManager {
+  constructor() {
+    this.win = null;
+    this.isVerticalExpanded = true;
+    this.savedHeight = null;
+  }
 
-  const sidebarWidth = 400; // 사이드바 너비
-  const x = position === "left" ? 0 : width - sidebarWidth;
-  const y = 0; // 화면 상단에 위치
+  createWindow(position = "left") {
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const { width, height } = primaryDisplay.workAreaSize;
 
-  win = new BrowserWindow({
-    width: sidebarWidth,
-    height: height, // 모니터 높이와 동일
-    autoHideMenuBar: true,
-    x: x,
-    y: y,
-    transparent: true,
-    frame: false,
-    alwaysOnTop: true,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
-  });
+    const x = position === "left" ? 0 : width - WINDOW_CONFIG.SIDEBAR_WIDTH;
+    const y = 0;
 
-  win.setOpacity(1);
-  savedHeight = height; // 초기 높이 저장
+    this.win = new BrowserWindow({
+      width: WINDOW_CONFIG.SIDEBAR_WIDTH,
+      height: height,
+      autoHideMenuBar: true,
+      x,
+      y,
+      transparent: true,
+      frame: false,
+      alwaysOnTop: true,
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false,
+      },
+    });
 
-  win.loadFile("index.html");
+    this.win.setOpacity(WINDOW_CONFIG.OPACITY);
+    this.savedHeight = height;
+    this.win.loadFile("index.html");
+  }
+
+  changePosition(position) {
+    if (!this.win) return;
+
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const { width, height } = primaryDisplay.workAreaSize;
+    const [currentWidth, currentHeight] = this.win.getSize();
+    const x = position === "left" ? 0 : width - currentWidth;
+    const y = height - currentHeight;
+    this.win.setPosition(x, y);
+  }
+
+  toggleVertical(isExpanded) {
+    if (!this.win) return;
+
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const { height: screenHeight } = primaryDisplay.workAreaSize;
+    const [currentWidth] = this.win.getSize();
+
+    if (isExpanded) {
+      const newHeight = this.savedHeight || screenHeight;
+      this.win.setSize(currentWidth, newHeight);
+      this.win.setPosition(this.win.getPosition()[0], screenHeight - newHeight);
+    } else {
+      this.savedHeight = this.win.getSize()[1];
+      this.win.setSize(currentWidth, WINDOW_CONFIG.COMPRESSED_HEIGHT);
+      this.win.setPosition(
+        this.win.getPosition()[0],
+        screenHeight - WINDOW_CONFIG.COMPRESSED_HEIGHT
+      );
+    }
+  }
 }
 
+const windowManager = new WindowManager();
+
+// 앱 이벤트 핸들러
 app.whenReady().then(() => {
-  createWindow();
+  windowManager.createWindow();
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
+      windowManager.createWindow();
     }
   });
 });
@@ -49,35 +93,11 @@ app.on("window-all-closed", () => {
   }
 });
 
-// IPC 핸들러 추가
+// IPC 핸들러
 ipcMain.on("change-position", (event, position) => {
-  if (win) {
-    const primaryDisplay = screen.getPrimaryDisplay();
-    const { width, height } = primaryDisplay.workAreaSize;
-    const [currentWidth, currentHeight] = win.getSize();
-    const x = position === "left" ? 0 : width - currentWidth;
-    const y = height - currentHeight;
-    win.setPosition(x, y);
-  }
+  windowManager.changePosition(position);
 });
 
 ipcMain.on("toggle-vertical", (event, isExpanded) => {
-  if (win) {
-    const primaryDisplay = screen.getPrimaryDisplay();
-    const { height: screenHeight } = primaryDisplay.workAreaSize;
-    const [currentWidth] = win.getSize();
-
-    if (isExpanded) {
-      // 저장된 높이로 복원하거나, 저장된 높이가 없으면 전체 높이 사용
-      const newHeight = savedHeight || screenHeight;
-      win.setSize(currentWidth, newHeight);
-      win.setPosition(win.getPosition()[0], screenHeight - newHeight); // 창 높이에 맞춰 Y 위치 계산
-    } else {
-      // 현재 높이를 저장하고 압축
-      savedHeight = win.getSize()[1];
-      const compressedHeight = 100;
-      win.setSize(currentWidth, compressedHeight);
-      win.setPosition(win.getPosition()[0], screenHeight - compressedHeight); // 압축된 높이에 맞춰 Y 위치 계산
-    }
-  }
+  windowManager.toggleVertical(isExpanded);
 });
