@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>게시판</title>
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css" />
     <style>
       body {
         margin: 0;
@@ -726,12 +726,19 @@
             />
           </div>
         </div>
-        <div class="header-right" style="font-size: 14px">
-          <button class="vertical-toggle" onclick="toggleVertical()">
-            expand_more
+        <div class="header-right">
+          <button id="download-csv" class="icon-button" title="CSV 다운로드">
+            <span class="material-icons">download</span>
           </button>
-          <button class="position-toggle" onclick="togglePosition()">
-            chevron_right
+          <button id="position-toggle" class="icon-button" title="위치 변경">
+            <span class="material-icons">chevron_right</span>
+          </button>
+          <button
+            id="vertical-toggle"
+            class="icon-button"
+            title="세로 크기 변경"
+          >
+            <span class="material-icons">expand_more</span>
           </button>
           <button class="close-button" onclick="window.close()">close</button>
         </div>
@@ -904,12 +911,12 @@
         socket = new WebSocket("ws://localhost:8000/ws");
         const statusIndicator = document.getElementById("connection-status");
 
-        socket.onopen = () => {
+        socket.onopen = async () => {
           console.log("WebSocket 연결됨");
           isConnected = true;
           statusIndicator.classList.add("connected");
-          loadGroups();
-          loadInitialPosts();
+          await loadGroups();
+          await loadInitialPosts(); // WebSocket 연결 시 초기 게시물 로드
         };
 
         socket.onclose = () => {
@@ -1177,50 +1184,88 @@
       function updateOpacity(value) {
         const opacity = value / 100;
         const content = document.querySelector(".content");
-        const postForm = document.querySelector(".post-form");
+        const postForm = document.querySelector(".post-form-container");
         const posts = document.querySelectorAll(".post");
         const header = document.querySelector(".header");
-        const searchContainer = document.querySelector(".search-container");
+        const filter = document.querySelector(".filter-container");
 
         postForm.style.opacity = opacity;
         header.style.opacity = opacity;
         posts.forEach((post) => {
           post.style.opacity = opacity;
         });
-        searchContainer.style.opacity = opacity;
+        filter.style.opacity = opacity;
       }
 
       // 초기 투명도 설정
       document.addEventListener("DOMContentLoaded", function () {
         updateOpacity(80);
-        const verticalToggle = document.querySelector(".vertical-toggle");
-        verticalToggle.textContent = isVerticalExpanded
-          ? "expand_more"
-          : "expand_less";
+        const verticalToggle = document.getElementById("vertical-toggle");
+        if (verticalToggle) {
+          verticalToggle.textContent = isVerticalExpanded
+            ? "expand_more"
+            : "expand_less";
+        }
       });
 
       function togglePosition() {
         currentPosition = currentPosition === "left" ? "right" : "left";
-        const positionToggle = document.querySelector(".position-toggle");
-        positionToggle.textContent =
-          currentPosition === "left" ? "chevron_right" : "chevron_left";
+        const positionToggle = document.getElementById("position-toggle");
+        const content = document.querySelector(".content");
+
+        if (positionToggle) {
+          positionToggle.textContent =
+            currentPosition === "left" ? "chevron_right" : "chevron_left";
+        }
+
+        // 스프링 효과 적용
+        content.classList.remove(
+          "spring-left",
+          "spring-right",
+          "spring-up",
+          "spring-down"
+        );
+        void content.offsetWidth; // 리플로우 강제
+        content.classList.add(
+          currentPosition === "left" ? "spring-left" : "spring-right"
+        );
+
         ipcRenderer.send("change-position", currentPosition);
       }
 
       function toggleVertical() {
         isVerticalExpanded = !isVerticalExpanded;
-        const verticalToggle = document.querySelector(".vertical-toggle");
-        verticalToggle.textContent = isVerticalExpanded
-          ? "expand_more"
-          : "expand_less";
+        const verticalToggle = document.getElementById("vertical-toggle");
+        const content = document.querySelector(".content");
+
+        if (verticalToggle) {
+          verticalToggle.textContent = isVerticalExpanded
+            ? "expand_more"
+            : "expand_less";
+        }
+
+        // 스프링 효과 적용
+        content.classList.remove(
+          "spring-up",
+          "spring-down",
+          "spring-left",
+          "spring-right"
+        );
+        void content.offsetWidth; // 리플로우 강제
+        content.classList.add(isVerticalExpanded ? "spring-up" : "spring-down");
+
+        // expanded 클래스 토글
+        if (isVerticalExpanded) {
+          content.classList.add("expanded");
+        } else {
+          content.classList.remove("expanded");
+        }
+
         ipcRenderer.send("toggle-vertical", isVerticalExpanded);
 
         // 컨텐츠 영역 표시/숨김 처리
-        const content = document.querySelector(".content");
-        if (isVerticalExpanded) {
-          content.style.height = "100vh";
-        } else {
-          content.style.height = "auto";
+        if (content) {
+          content.style.height = isVerticalExpanded ? "100vh" : "auto";
         }
       }
 
@@ -1368,7 +1413,7 @@
         }
       }
 
-      // 초기 게시물 목록 로드 함수 추가
+      // 초기 게시물 목록 로드 함수 수정
       async function loadInitialPosts() {
         try {
           const response = await fetch("http://localhost:8000/posts");
@@ -1377,6 +1422,7 @@
           }
           const posts = await response.json();
           currentPosts = posts;
+          console.log("Loaded initial posts:", currentPosts.length); // 디버깅용 로그
           updateDisplayedPosts();
         } catch (error) {
           console.error("Error loading initial posts:", error);
@@ -1467,6 +1513,93 @@
 
       // WebSocket 연결 시작
       connectWebSocket();
+
+      // 위치 변경 버튼 이벤트 리스너 추가
+      document
+        .getElementById("position-toggle")
+        .addEventListener("click", function () {
+          togglePosition();
+        });
+
+      // 세로 크기 변경 버튼 이벤트 리스너 추가
+      document
+        .getElementById("vertical-toggle")
+        .addEventListener("click", function () {
+          toggleVertical();
+        });
+
+      // 다운로드 버튼 이벤트 리스너 추가
+      document
+        .getElementById("download-csv")
+        .addEventListener("click", function () {
+          console.log("Download button clicked!");
+
+          // 현재 필터링된 게시글 가져오기
+          const searchInput = document.getElementById("search-input");
+          const searchTerm = searchInput.value.toLowerCase();
+          const groupFilter = document.getElementById("group-select");
+          const currentGroup = groupFilter.value;
+
+          const filteredPosts = currentPosts.filter((post) => {
+            const matchesGroup = !currentGroup || post.group === currentGroup;
+            const matchesSearch =
+              !searchTerm ||
+              post.title.toLowerCase().includes(searchTerm) ||
+              post.content.toLowerCase().includes(searchTerm);
+            const matchesFilter =
+              currentFilter === "all" ||
+              (currentFilter === "completed" && post.completed) ||
+              (currentFilter === "incomplete" && !post.completed);
+            return matchesGroup && matchesSearch && matchesFilter;
+          });
+
+          if (filteredPosts.length === 0) {
+            alert("다운로드할 게시글이 없습니다.");
+            return;
+          }
+
+          // CSV 헤더 정의
+          const headers = ["제목", "내용", "그룹", "긴급", "완료", "생성일"];
+
+          // CSV 데이터 생성
+          const csvContent = [
+            headers.join(","),
+            ...filteredPosts.map((post) =>
+              [
+                `"${post.title.replace(/"/g, '""')}"`,
+                `"${post.content.replace(/"/g, '""').replace(/\n/g, " ")}"`,
+                `"${post.group || ""}"`,
+                post.urgent ? "예" : "아니오",
+                post.completed ? "예" : "아니오",
+                `"${post.created_at}"`,
+              ].join(",")
+            ),
+          ].join("\n");
+
+          // Blob 생성 및 다운로드
+          const blob = new Blob(["\uFEFF" + csvContent], {
+            type: "text/csv;charset=utf-8;",
+          });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+
+          link.href = url;
+          link.download = `게시판_${
+            new Date().toISOString().split("T")[0]
+          }.csv`;
+
+          // 다운로드 완료 후 알림 표시
+          link.onload = function () {
+            alert(
+              `총 ${filteredPosts.length}개의 게시글이 다운로드되었습니다.`
+            );
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+          };
+
+          document.body.appendChild(link);
+          link.click();
+        });
     </script>
   </body>
 </html>

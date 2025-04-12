@@ -146,6 +146,7 @@ class BoardManager {
     this.setupFilterButtonListeners();
     this.setupWindowControlListeners();
     this.setupPostFormListeners();
+    this.setupCSVDownloadListener();
   }
 
   setupSearchListener() {
@@ -204,6 +205,23 @@ class BoardManager {
     });
   }
 
+  setupCSVDownloadListener() {
+    console.log("Setting up CSV download listener...");
+    const downloadButton = document.getElementById("download-csv");
+    console.log("Download button element:", downloadButton);
+
+    if (!downloadButton) {
+      console.error("Download button not found!");
+      return;
+    }
+
+    downloadButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      console.log("Download button clicked!");
+      alert("다운로드 버튼이 클릭되었습니다!");
+    });
+  }
+
   updateFilterButtons() {
     const buttons = document.querySelectorAll(".filter-button");
     buttons.forEach((button) => button.classList.remove("active"));
@@ -246,6 +264,18 @@ class BoardManager {
   togglePosition() {
     this.currentPosition = this.currentPosition === "left" ? "right" : "left";
     const positionToggle = document.getElementById(UI_ELEMENTS.POSITION_TOGGLE);
+    const content = document.querySelector(".content");
+
+    // 애니메이션을 위한 클래스 추가/제거
+    content.classList.remove("left", "right");
+    content.classList.add(this.currentPosition);
+
+    // 위치 변경 애니메이션
+    content.style.transform =
+      this.currentPosition === "left"
+        ? "translateX(0)"
+        : "translateX(calc(100vw - 100%))";
+
     positionToggle.textContent =
       this.currentPosition === "left" ? "chevron_right" : "chevron_left";
 

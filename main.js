@@ -1,4 +1,6 @@
-const { app, BrowserWindow, screen, ipcMain } = require("electron");
+const { app, BrowserWindow, screen, ipcMain, dialog } = require("electron");
+const path = require("path");
+const fs = require("fs");
 
 // 상수 정의
 const WINDOW_CONFIG = {
@@ -100,4 +102,25 @@ ipcMain.on("change-position", (event, position) => {
 
 ipcMain.on("toggle-vertical", (event, isExpanded) => {
   windowManager.toggleVertical(isExpanded);
+});
+
+// CSV 다운로드 핸들러
+ipcMain.on("download-csv", (event, csvContent) => {
+  const downloadsPath = app.getPath("downloads");
+  const fileName = `게시판_${new Date().toISOString().split("T")[0]}.csv`;
+  const filePath = path.join(downloadsPath, fileName);
+
+  fs.writeFile(filePath, csvContent, (err) => {
+    if (err) {
+      console.error("CSV 파일 저장 중 오류 발생:", err);
+      event.reply("download-complete", { success: false, error: err.message });
+    } else {
+      console.log("CSV 파일이 성공적으로 저장됨:", filePath);
+      event.reply("download-complete", {
+        success: true,
+        path: filePath,
+        message: `파일이 다운로드 폴더에 저장되었습니다: ${fileName}`,
+      });
+    }
+  });
 });
