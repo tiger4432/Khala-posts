@@ -1424,6 +1424,10 @@
           currentPosts = posts;
           console.log("Loaded initial posts:", currentPosts.length); // 디버깅용 로그
           updateDisplayedPosts();
+
+          // 게시물 로드 후 투명도 적용
+          const initialOpacity = document.getElementById("opacity").value;
+          updateOpacity(initialOpacity);
         } catch (error) {
           console.error("Error loading initial posts:", error);
           alert("게시물 목록을 불러오는데 실패했습니다.");
