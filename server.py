@@ -6,9 +6,12 @@ import json
 import csv
 import os
 from datetime import datetime
+import asyncio
+from filelock import FileLock
 
 # 상수 정의
 CSV_FILE = "posts.csv"
+LOCK_FILE = "posts.csv.lock"
 GROUPS = ["PAD", "CMP", "WSS"]
 
 # 데이터베이스 모델
@@ -36,53 +39,39 @@ class PostUpdate(BaseModel):
 class DatabaseManager:
     def __init__(self, csv_file: str):
         self.csv_file = csv_file
+        self.lock = FileLock(LOCK_FILE)
         self._initialize_csv()
 
     def _initialize_csv(self):
-        if not os.path.exists(self.csv_file):
-            with open(self.csv_file, "w", newline="", encoding="utf-8") as f:
-                writer = csv.writer(f)
-                writer.writerow(["id", "title", "content", "group", "created_at", "urgent", "completed"])
+        with self.lock:
+            if not os.path.exists(self.csv_file):
+                with open(self.csv_file, "w", newline="", encoding="utf-8") as f:
+                    writer = csv.writer(f)
+                    writer.writerow(["id", "title", "content", "group", "created_at", "urgent", "completed"])
 
     def read_posts(self, group: Optional[str] = None) -> List[Post]:
-        posts = []
-        with open(self.csv_file, "r", newline="", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                if group is None or group == "" or row["group"] == group or row["group"] == "":
-                    posts.append(Post(
-                        id=int(row["id"]),
-                        title=row["title"],
-                        content=row["content"],
-                        group=row["group"],
-                        created_at=row["created_at"],
-                        urgent=row.get("urgent", "False").lower() == "true",
-                        completed=row.get("completed", "False").lower() == "true"
-                    ))
-        posts.sort(key=lambda x: (not x.urgent, x.created_at), reverse=True)
-        return posts
+        with self.lock:
+            posts = []
+            with open(self.csv_file, "r", newline="", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    if group is None or group == "" or row["group"] == group or row["group"] == "":
+                        posts.append(Post(
+                            id=int(row["id"]),
+                            title=row["title"],
+                            content=row["content"],
+                            group=row["group"],
+                            created_at=row["created_at"],
+                            urgent=row.get("urgent", "False").lower() == "true",
+                            completed=row.get("completed", "False").lower() == "true"
+                        ))
+            posts.sort(key=lambda x: (not x.urgent, x.created_at), reverse=True)
+            return posts
 
     def write_post(self, post: Post) -> None:
-        with open(self.csv_file, "a", newline="", encoding="utf-8") as f:
-            writer = csv.writer(f)
-            writer.writerow([
-                post.id,
-                post.title,
-                post.content,
-                post.group,
-                post.created_at,
-                post.urgent,
-                post.completed
-            ])
-
-    def delete_post(self, post_id: int) -> None:
-        posts = self.read_posts()
-        posts = [p for p in posts if p.id != post_id]
-        
-        with open(self.csv_file, "w", newline="", encoding="utf-8") as f:
-            writer = csv.writer(f)
-            writer.writerow(["id", "title", "content", "group", "created_at", "urgent", "completed"])
-            for post in posts:
+        with self.lock:
+            with open(self.csv_file, "a", newline="", encoding="utf-8") as f:
+                writer = csv.writer(f)
                 writer.writerow([
                     post.id,
                     post.title,
@@ -93,11 +82,62 @@ class DatabaseManager:
                     post.completed
                 ])
 
+    def delete_post(self, post_id: int) -> None:
+        with self.lock:
+            posts = self.read_posts()
+            posts = [p for p in posts if p.id != post_id]
+            
+            with open(self.csv_file, "w", newline="", encoding="utf-8") as f:
+                writer = csv.writer(f)
+                writer.writerow(["id", "title", "content", "group", "created_at", "urgent", "completed"])
+                for post in posts:
+                    writer.writerow([
+                        post.id,
+                        post.title,
+                        post.content,
+                        post.group,
+                        post.created_at,
+                        post.urgent,
+                        post.completed
+                    ])
+
     def get_next_id(self) -> int:
-        posts = self.read_posts()
-        if not posts:
-            return 1
-        return max(p.id for p in posts) + 1
+        with self.lock:
+            posts = self.read_posts()
+            if not posts:
+                return 1
+            return max(p.id for p in posts) + 1
+
+    def update_post(self, post_id: int, post_update: PostUpdate) -> Optional[Post]:
+        with self.lock:
+            posts = self.read_posts()
+            post_to_update = next((p for p in posts if p.id == post_id), None)
+            if not post_to_update:
+                return None
+            
+            if post_update.urgent is not None:
+                post_to_update.urgent = post_update.urgent
+            if post_update.completed is not None:
+                post_to_update.completed = post_update.completed
+            
+            # 파일 전체를 다시 쓰기
+            with open(self.csv_file, "w", newline="", encoding="utf-8") as f:
+                writer = csv.writer(f)
+                writer.writerow(["id", "title", "content", "group", "created_at", "urgent", "completed"])
+                for post in posts:
+                    if post.id == post_id:
+                        post = post_to_update
+                    writer.writerow([
+                        post.id,
+                        post.title,
+                        post.content,
+                        post.group,
+                        post.created_at,
+                        post.urgent,
+                        post.completed
+                    ])
+            
+            return post_to_update
 
 # WebSocket 연결 관리 클래스
 class ConnectionManager:
@@ -172,24 +212,15 @@ async def delete_post_endpoint(post_id: int):
 
 @app.put("/posts/{post_id}")
 async def update_post(post_id: int, post_update: PostUpdate):
-    posts = db_manager.read_posts()
-    post_to_update = next((p for p in posts if p.id == post_id), None)
-    if not post_to_update:
+    updated_post = db_manager.update_post(post_id, post_update)
+    if not updated_post:
         raise HTTPException(status_code=404, detail="Post not found")
-    
-    if post_update.urgent is not None:
-        post_to_update.urgent = post_update.urgent
-    if post_update.completed is not None:
-        post_to_update.completed = post_update.completed
-    
-    db_manager.delete_post(post_id)
-    db_manager.write_post(post_to_update)
     
     await manager.broadcast({
         "type": "update_post",
-        "post": post_to_update.model_dump()
+        "post": updated_post.model_dump()
     })
-    return post_to_update
+    return updated_post
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):

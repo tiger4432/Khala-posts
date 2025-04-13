@@ -10,6 +10,7 @@
   --content-background: rgba(121, 121, 121, 0.5);
   --header-background: rgba(255, 255, 255, 1);
   --post-background: rgba(255, 255, 255, 1);
+  --post-completed-background: rgba(146, 146, 146, 0.7);
   --urgent-post-background: rgba(255, 200, 200, 1);
   --border-color: rgba(0, 0, 0, 0.1);
   --scrollbar-track: rgba(0, 0, 0, 0.1);
@@ -158,17 +159,36 @@ body {
 /* 게시글 스타일 */
 .post {
   background: var(--post-background);
-  padding: 12px;
-  margin-bottom: 12px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px var(--border-color);
-  position: relative;
-  width: 100%;
-  box-sizing: border-box;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.post-completed {
+  background: var(--post-completed-background);
+  opacity: 0.7;
+}
+
+.post-completed .post-title,
+.post-completed .post-content,
+.post-completed .post-footer,
+.post-completed .post-group {
+  color: var(--text-color-secondary);
+}
+
+.post-completed .post-status {
+  opacity: 0.7;
 }
 
 .post.urgent {
   background: var(--urgent-post-background);
+}
+
+.post.urgent.post-completed {
+  background: var(--post-completed-background);
+  opacity: 0.7;
 }
 
 .post-title {
@@ -385,10 +405,10 @@ body {
     transform: translateY(0) scaleY(1);
   }
   50% {
-    transform: translateY(-10px) scaleY(0.95);
+    transform: translateY(-1px) scaleY(0.97);
   }
   75% {
-    transform: translateY(5px) scaleY(1.03);
+    transform: translateY(1px) scaleY(1.02);
   }
   100% {
     transform: translateY(0) scaleY(1);

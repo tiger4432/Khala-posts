@@ -447,17 +447,19 @@
         cursor: pointer;
       }
 
-      .post-urgent {
-        display: inline-block;
-        padding: 2px 6px;
-        background: #ff4444;
-        color: white;
-        border-radius: 10px;
-        font-size: 11px;
-        margin-bottom: 6px;
+      .post.urgent {
+        background-color: #fff3f3;
+        border-left: 4px solid #ff4444;
       }
 
       .post-completed {
+        background: rgba(255, 255, 255, 0.7);
+        text-decoration: line-through;
+        opacity: 0.7;
+      }
+
+      .post.urgent.post-completed {
+        background: rgba(255, 236, 236, 0.7);
         text-decoration: line-through;
         opacity: 0.7;
       }
@@ -567,16 +569,6 @@
         width: 14px;
         height: 14px;
         margin: 0;
-      }
-
-      .post-completed {
-        opacity: 0.7;
-        text-decoration: line-through;
-      }
-
-      .post.urgent {
-        background-color: #fff3f3;
-        border-left: 4px solid #ff4444;
       }
 
       .filter-container {
@@ -721,7 +713,7 @@
               id="opacity"
               min="50"
               max="100"
-              value="80"
+              value="100"
               oninput="updateOpacity(this.value)"
             />
           </div>
@@ -743,7 +735,6 @@
           <button class="close-button" onclick="window.close()">close</button>
         </div>
       </div>
-
       <div class="filter-container">
         <div class="filter-header">
           <div class="filter-header-left">
@@ -811,98 +802,12 @@
         <!-- 게시판 내용이 여기에 표시됩니다 -->
       </div>
     </div>
-    <div class="modal" id="new-post-modal">
-      <div class="modal-content">
-        <h3>새 게시글 작성</h3>
-        <input type="text" id="new-title" placeholder="제목" />
-        <textarea id="new-content" placeholder="내용"></textarea>
-        <select id="new-group">
-          <option value="">공통</option>
-        </select>
-        <button onclick="createPost()">게시</button>
-        <button
-          onclick="hideNewPostModal()"
-          style="margin-top: 10px; background: #666"
-        >
-          취소
-        </button>
-      </div>
-    </div>
-    <div class="modal" id="delete-confirm-modal">
-      <div class="delete-confirm-dialog">
-        <p>정말로 이 게시글을 삭제하시겠습니까?</p>
-        <button class="confirm" onclick="confirmDeleteAction()">삭제</button>
-        <button class="cancel" onclick="cancelDelete()">취소</button>
-      </div>
-    </div>
-    <div class="modal" id="edit-post-modal">
-      <div class="modal-content">
-        <h3>게시글 수정</h3>
-        <input type="text" id="edit-title" placeholder="제목" />
-        <textarea id="edit-content" placeholder="내용"></textarea>
-        <select id="edit-group">
-          <option value="">공통</option>
-        </select>
-        <div class="checkbox-container">
-          <input type="checkbox" id="edit-urgent" />
-          <label for="edit-urgent">긴급</label>
-        </div>
-        <div class="checkbox-container">
-          <input type="checkbox" id="edit-completed" />
-          <label for="edit-completed">완료</label>
-        </div>
-        <button onclick="updatePost()">수정</button>
-        <button
-          onclick="hideEditPostModal()"
-          style="margin-top: 10px; background: #666"
-        >
-          취소
-        </button>
-      </div>
-    </div>
-    <div id="postModal" class="modal">
-      <div class="modal-content">
-        <h2>게시글 상세</h2>
-        <div class="form-group">
-          <label for="modalTitle">제목</label>
-          <input type="text" id="modalTitle" readonly />
-        </div>
-        <div class="form-group">
-          <label for="modalContent">내용</label>
-          <textarea id="modalContent" readonly></textarea>
-        </div>
-        <div class="form-group">
-          <label for="modalGroup">그룹</label>
-          <input type="text" id="modalGroup" readonly />
-        </div>
-        <div class="form-group">
-          <label class="checkbox-label">
-            <input type="checkbox" id="modalUrgent" />
-            긴급
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" id="modalCompleted" />
-            완료
-          </label>
-        </div>
-        <div class="modal-buttons">
-          <button id="updateButton">업데이트</button>
-          <button
-            onclick="document.getElementById('postModal').style.display='none'"
-          >
-            닫기
-          </button>
-        </div>
-      </div>
-    </div>
     <script>
       const { ipcRenderer } = require("electron");
       let socket = null;
       let isConnected = false;
       let currentGroup = "";
       let currentPosts = [];
-      let deletePostId = null;
-      let editPostId = null;
       let currentPosition = "left";
       let isVerticalExpanded = true;
       let currentFilter = "all"; // 'all', 'completed', 'incomplete'
@@ -1056,6 +961,10 @@
         `
           )
           .join("");
+
+        // 게시물 업데이트 후 투명도 적용
+        const currentOpacity = document.getElementById("opacity").value;
+        updateOpacity(currentOpacity);
       }
 
       function handleWebSocketMessage(data) {
@@ -1083,14 +992,6 @@
         }
       }
 
-      function showNewPostModal() {
-        document.getElementById("new-post-modal").style.display = "block";
-      }
-
-      function hideNewPostModal() {
-        document.getElementById("new-post-modal").style.display = "none";
-      }
-
       function createPost() {
         const titleInput = document.getElementById("new-title");
         const contentInput = document.getElementById("new-content");
@@ -1105,6 +1006,7 @@
 
         if (!title) {
           alert("제목을 입력해주세요.");
+
           return;
         }
 
@@ -1126,6 +1028,7 @@
               titleInput.value = "";
               contentInput.value = "";
               urgentInput.checked = false;
+              titleInput.focus(); // 입력 필드에 포커스
             } else {
               return response.json().then((data) => {
                 throw new Error(data.detail || "알 수 없는 오류");
@@ -1133,27 +1036,11 @@
             }
           })
           .catch((error) => {
-            alert(`게시글 작성에 실패했습니다: ${error.message}`);
+            setTimeout(() => {
+              alert(`게시글 작성에 실패했습니다: ${error.message}`);
+              titleInput.focus(); // 에러 발생 시 입력 필드에 포커스
+            }, 0);
           });
-      }
-
-      function confirmDelete(postId) {
-        deletePostId = postId;
-        document.getElementById("delete-confirm-modal").style.display = "block";
-      }
-
-      function cancelDelete() {
-        deletePostId = null;
-        document.getElementById("delete-confirm-modal").style.display = "none";
-      }
-
-      async function confirmDeleteAction() {
-        if (deletePostId) {
-          await deletePost(deletePostId);
-          document.getElementById("delete-confirm-modal").style.display =
-            "none";
-          deletePostId = null;
-        }
       }
 
       async function deletePost(postId) {
@@ -1168,15 +1055,23 @@
 
             if (!response.ok) {
               const errorData = await response.json();
-              alert(
-                `게시글 삭제에 실패했습니다: ${
-                  errorData.detail || "알 수 없는 오류"
-                }`
+              setTimeout(
+                () =>
+                  alert(
+                    `게시글 삭제에 실패했습니다: ${
+                      errorData.detail || "알 수 없는 오류"
+                    }`
+                  ),
+                0
               );
             }
           } catch (error) {
             console.error("Error:", error);
-            alert("게시글 삭제에 실패했습니다. 서버 연결을 확인해주세요.");
+            setTimeout(
+              () =>
+                alert("게시글 삭제에 실패했습니다. 서버 연결을 확인해주세요."),
+              0
+            );
           }
         }
       }
@@ -1269,118 +1164,6 @@
         }
       }
 
-      function showEditPostModal(post) {
-        document.getElementById("edit-title").value = post.title;
-        document.getElementById("edit-content").value = post.content;
-        document.getElementById("edit-group").value = post.group || "";
-        document.getElementById("edit-urgent").checked = post.urgent || false;
-        document.getElementById("edit-completed").checked =
-          post.completed || false;
-        editPostId = post.id;
-        document.getElementById("edit-post-modal").style.display = "block";
-      }
-
-      function hideEditPostModal() {
-        document.getElementById("edit-post-modal").style.display = "none";
-        editPostId = null;
-      }
-
-      async function updatePost() {
-        if (!editPostId) return;
-
-        const title = document.getElementById("edit-title").value.trim();
-        const content = document.getElementById("edit-content").value.trim();
-        const group = document.getElementById("edit-group").value.trim();
-        const urgent = document.getElementById("edit-urgent").checked;
-        const completed = document.getElementById("edit-completed").checked;
-
-        if (!title || !content) {
-          alert("제목과 내용을 모두 입력해주세요.");
-          return;
-        }
-
-        try {
-          const response = await fetch(
-            `http://localhost:8000/posts/${editPostId}`,
-            {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                title,
-                content,
-                group: group || "",
-                urgent,
-                completed,
-              }),
-            }
-          );
-
-          if (response.ok) {
-            hideEditPostModal();
-            // WebSocket을 통해 서버에서 업데이트된 게시물을 받을 것이므로 여기서는 UI만 업데이트
-          } else {
-            const errorData = await response.json();
-            alert(
-              `게시글 수정에 실패했습니다: ${
-                errorData.detail || "알 수 없는 오류"
-              }`
-            );
-          }
-        } catch (error) {
-          console.error("Error:", error);
-          alert("게시글 수정에 실패했습니다. 서버 연결을 확인해주세요.");
-        }
-      }
-
-      function showPostModal(post) {
-        const modal = document.getElementById("postModal");
-        const modalTitle = document.getElementById("modalTitle");
-        const modalContent = document.getElementById("modalContent");
-        const modalGroup = document.getElementById("modalGroup");
-        const modalUrgent = document.getElementById("modalUrgent");
-        const modalCompleted = document.getElementById("modalCompleted");
-
-        modalTitle.value = post.title;
-        modalContent.value = post.content;
-        modalGroup.value = post.group;
-        modalUrgent.checked = post.urgent;
-        modalCompleted.checked = post.completed;
-
-        // Update 버튼 클릭 이벤트
-        const updateButton = document.getElementById("updateButton");
-        updateButton.onclick = async () => {
-          try {
-            const response = await fetch(`/posts/${post.id}`, {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                urgent: modalUrgent.checked,
-                completed: modalCompleted.checked,
-              }),
-            });
-
-            if (!response.ok) {
-              throw new Error("Failed to update post");
-            }
-
-            // 모달 닫기
-            modal.style.display = "none";
-
-            // 게시글 목록 새로고침
-            loadPosts();
-          } catch (error) {
-            console.error("Error updating post:", error);
-            alert("게시글 업데이트에 실패했습니다.");
-          }
-        };
-
-        modal.style.display = "block";
-      }
-
       async function updatePostStatus(postId, field, value) {
         try {
           const response = await fetch(
@@ -1409,7 +1192,7 @@
           }
         } catch (error) {
           console.error("Error updating post status:", error);
-          alert("게시글 상태 업데이트에 실패했습니다.");
+          setTimeout(() => alert("게시글 상태 업데이트에 실패했습니다."), 0);
         }
       }
 
@@ -1430,7 +1213,7 @@
           updateOpacity(initialOpacity);
         } catch (error) {
           console.error("Error loading initial posts:", error);
-          alert("게시물 목록을 불러오는데 실패했습니다.");
+          setTimeout(() => alert("게시물 목록을 불러오는데 실패했습니다."), 0);
         }
       }
 
@@ -1558,7 +1341,7 @@
           });
 
           if (filteredPosts.length === 0) {
-            alert("다운로드할 게시글이 없습니다.");
+            setTimeout(() => alert("다운로드할 게시글이 없습니다."), 0);
             return;
           }
 
@@ -1594,11 +1377,13 @@
 
           // 다운로드 완료 후 알림 표시
           link.onload = function () {
-            alert(
-              `총 ${filteredPosts.length}개의 게시글이 다운로드되었습니다.`
-            );
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
+            setTimeout(() => {
+              alert(
+                `총 ${filteredPosts.length}개의 게시글이 다운로드되었습니다.`
+              );
+              document.body.removeChild(link);
+              URL.revokeObjectURL(url);
+            }, 100);
           };
 
           document.body.appendChild(link);
