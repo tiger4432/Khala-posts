@@ -4,6 +4,9 @@ dist/
 # Node modules
 node_modules/
 
+# Electron cache
+electron-cache/
+
 # Python
 __pycache__/
 *.py[cod]

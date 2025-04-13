@@ -1,11 +1,11 @@
 {
   "name": "khala",
   "version": "1.0.0",
-  "description": "Simple bulletin board application",
+  "description": "심플한 업무 공유 게시판",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder"
+    "build": "electron-builder --config.asar=false"
   },
   "author": "",
   "license": "ISC",
@@ -15,18 +15,26 @@
   },
   "build": {
     "appId": "com.khala.app",
-    "productName": "Khala",
+    "productName": "게시판",
     "directories": {
       "output": "dist"
     },
     "win": {
-      "target": "portable"
+      "target": "portable",
+      "icon": "assets/icon.png"
     },
     "mac": {
-      "target": "dmg"
+      "target": "dmg",
+      "icon": "assets/icon.png"
     },
     "linux": {
-      "target": "AppImage"
+      "target": "AppImage",
+      "icon": "assets/icon.png"
+    },
+    "electronDownload": {
+      "cache": "./electron-cache",
+      "version": "28.3.3",
+      "strictSSL": false
     }
   }
 }

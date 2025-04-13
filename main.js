@@ -32,6 +32,7 @@ class WindowManager {
       transparent: true,
       frame: false,
       alwaysOnTop: true,
+      icon: path.join(__dirname, "assets", "icon.png"),
       webPreferences: {
         nodeIntegration: true,
         contextIsolation: false,
